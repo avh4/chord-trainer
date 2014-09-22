@@ -5,8 +5,7 @@
   "main": "main.js",
   "license": "MIT",
   "dependencies": {
-    "baconjs": "^0.7.22",
-    "midiguchi": "^0.3.0",
+    "midi": "^0.9.0",
     "piu": "^1.0.0",
     "teoria": "^1.2.0"
   }

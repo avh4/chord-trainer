@@ -1,8 +1,6 @@
-var midi = require('midi');
+var 口 = require('midiguchi');
 var piu = require('piu');
 var teoria = require('teoria');
-
-var input = new midi.input();
 
 var onNotes = {};
 
@@ -22,7 +20,7 @@ function printChord() {
 	console.log(chords.map(piu.name));
 }
 
-input.on('message', function(deltaTime, message) {
+function handleMidi(message) {
 	var m = message[0];
 	var type = eventType(message);
 	var note = message[1];
@@ -35,16 +33,16 @@ input.on('message', function(deltaTime, message) {
 	}
 
 	printChord();
-});
+}
 
-var ports = input.getPortCount();
-if (ports == 0) {
+console.log(口.input.ports[0]);
+if (口.input.ports.length == 0) {
 	throw new Error("No MIDI devices found.  Connect one and try again.");
 }
 
-for (var p = 0; p < ports; p++) {
-	console.log("Opening MIDI port " + p + ": " + input.getPortName(p));
-	input.openPort(p);
-}
+口.input.ports.forEach(function(port) {
+	console.log("Opening MIDI port: " + port);
+	口.input.open(port).onValue(handleMidi);
+});
 
 // input.closePort();

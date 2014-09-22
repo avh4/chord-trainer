@@ -12,14 +12,23 @@ function eventType(message) {
 	return message[0] & 0xf0;
 }
 
+var display = {
+	notes: function() {},
+	chords: function(chords) {
+		if (chords.length > 0) {
+			console.log(chords.join(", "));
+		}
+	}
+}
+
 function printChord() {
 	var notes = [];
 	for (var note in onNotes) {
 		notes.push(teoria.note.fromMIDI(note));
 	}
 	var chords = piu.infer(notes, true);
-	console.log(notes.map(function(n) { return n.name() + n.accidental() }));
-	console.log(chords.map(piu.name));
+	display.notes(notes.map(function(n) { return n.name() + n.accidental() }));
+	display.chords(chords.map(piu.name));
 }
 
 input.on('message', function(deltaTime, message) {

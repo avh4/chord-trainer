@@ -24,9 +24,10 @@ function handleMidi(message) {
 	var m = message[0];
 	var type = eventType(message);
 	var note = message[1];
-	if (type == NOTE_ON) {
+	var vel = message[2];
+	if (type == NOTE_ON && vel > 0) {
 		onNotes[note] = true;
-	} else if (type == NOTE_OFF) {
+	} else if (type == NOTE_OFF || type == NOTE_ON) {
 		delete onNotes[note];
 	} else {
 		return;

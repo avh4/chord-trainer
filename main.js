@@ -2,6 +2,17 @@ var midi = require('midi');
 var piu = require('piu');
 var teoria = require('teoria');
 
+var WebSocketServer = require('ws').Server
+  , wss = new WebSocketServer({port: 8001});
+var client;
+wss.on('connection', function(ws) {
+	console.log('client connected.');
+	ws.on('message', function(message) {
+		console.log('received: %s', message);
+	});
+	client = ws;
+});
+
 var input = new midi.input();
 
 var onNotes = {};
@@ -13,7 +24,10 @@ function eventType(message) {
 }
 
 var display = {
-	notes: function() {},
+	notes: function(notes) {
+		console.log("notes", notes);
+		if (client) client.send(JSON.stringify(notes));
+	},
 	chords: function(chords) {
 		if (chords.length > 0) {
 			console.log(chords.join(", "));

@@ -1,16 +1,57 @@
 import Window
 import Set
+import WebSocket
+import Json
+import Debug
 
 -- ♭ 𝄫 ♯ 𝄪
 
+currentNotesJson : Signal String
+currentNotesJson = WebSocket.connect "ws://localhost:8001/notes" (constant "connect")
+
+noteFromJson : Json.Value -> String
+noteFromJson v = case v of
+  Json.String s -> s
+  _ -> "" -- TODO: should be Maybe String
+
+notesFromJson : String -> Set.Set String
+notesFromJson s = case (Json.fromString (Debug.log "js" s)) of
+  Just (Json.Array notes) -> Set.fromList (map noteFromJson notes)
+  _ -> Set.empty
+
 currentNotes : Signal (Set.Set String)
-currentNotes = constant (Set.fromList ["C", "E"])
+currentNotes = lift notesFromJson currentNotesJson
+
+noteName : String -> String
+noteName s = case s of
+  "a" -> "A"
+  "b" -> "B"
+  "c" -> "C"
+  "d" -> "D"
+  "e" -> "E"
+  "f" -> "F"
+  "g" -> "G"
+  "ab" -> "A♭"
+  "bb" -> "B♭"
+  "cb" -> "C♭"
+  "db" -> "D♭"
+  "eb" -> "E♭"
+  "fb" -> "F♭"
+  "gb" -> "G♭"
+  "a#" -> "A♯"
+  "b#" -> "B♯"
+  "c#" -> "C♯"
+  "d#" -> "D♯"
+  "e#" -> "E♯"
+  "f#" -> "F♯"
+  "g#" -> "G♯"
+  s -> s
 
 notes =
-  [ [ "D", "G", "C", "F", "B♭", "E♭", "A♭", "D♭" ]
-  , [ "B", "E", "A", "D", "G", "C", "F" ]
-  , [ "A♭", "D♭", "G♭", "B", "E", "A", "D" ]
-  , [ "F", "B♭", "E♭", "A♭", "D♭", "G♭" ]
+  [ [ "d", "g", "c", "f", "a#", "eb", "g#", "db" ]
+  , [ "b", "e", "a", "d", "g", "c", "f" ]
+  , [ "g#", "db", "f#", "b", "e", "a", "d" ]
+  , [ "f", "a#", "eb", "g#", "db", "f#" ]
   ]
 hexRadius = 50
 hexDistance = (sqrt 3)*hexRadius
@@ -27,7 +68,7 @@ cell : String -> (Float, Float) -> Bool -> [Form]
 cell note pos sel =
   [ move pos ((filled (if sel then yellow else orange)) (ngon 6 hexRadius))
   , move pos (outlined (solid charcoal) (ngon 6 hexRadius))
-  , move pos (toForm ((if sel then centered (bold (toText note)) else plainText note)))
+  , move pos (toForm ((if sel then centered (bold (toText (noteName note))) else plainText (noteName note))))
   ]
 
 
